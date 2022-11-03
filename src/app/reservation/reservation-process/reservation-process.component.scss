@@ -1,0 +1,25 @@
+.top-bg {color: #fff;background-color: rgba(0, 0, 0, 0.5); min-height: 250px; padding: 2em 0; position: relative;
+  .info-box {text-align: center;padding: 0 1em; display: flex;flex-direction: column;align-items: center;justify-content: center;
+    .title {font-size: var(--title-font-size);line-height: 1.2;}
+    .desc {font-size: var(--sub-title-font-size);line-height: 1.5; font-weight: normal;}
+  }
+  .bg-image {position: absolute; top: 0; bottom: 0; left: 0; right: 0; z-index: -1;}
+}
+.main-content {padding: 2em 0;
+  .counter-btn {display: grid; grid-auto-flow: column; align-items: center; justify-content: center; gap: .5em;
+    font-size: 2.5em; line-height: 1; font-weight: 500; 
+    .btn {font-size: .75em; line-height: 1; }
+  }
+  .time-btn-grp {display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: .75em;
+    .btn {box-shadow: 0px 2px #D3D3D3 !important; transition: all 0.2s linear;border-radius: 20px; border: 0;
+      &.active {background-color: var(--theme-primary); color: var(--theme-primary-contrast);}
+    }
+  }
+  .input-group.mobile {display: grid; grid-template-columns: auto 1fr;}
+}
+@media (max-width: 767px) {    
+  .top-bg {min-height: 0; padding: 0; margin-bottom: 1em;}
+  .main-content {padding: .5em; padding-top: 3em;
+    
+  }
+}

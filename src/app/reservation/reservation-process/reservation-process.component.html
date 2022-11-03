@@ -1,0 +1,179 @@
+<div class="container-fluid">
+  <div class="row top-bg">
+    <div class="container info-box">
+      <h1 class="title font-heading">{{pageContent?.headline_title}}</h1>
+      <h2 class="desc">{{pageContent?.sub_headline}}</h2>
+    </div>
+    <div class="bg-image" [ngStyle]="{background: 'url('+(resdata$ | async)?.restaurant_data?.cover_image+') no-repeat center top / cover'}"></div>
+  </div>
+</div>
+<div class="container main-content">
+  <div class="row pannel">
+    <div class="col-7">
+    </div>
+    <div class="col-5">
+      <form [formGroup]="form" (submit)="submitReservation()">
+        <div class="card">
+          <div class="card-body">
+            <div class="col text-center mb-3">
+              <h5 class="mb-3">Reservation Date</h5>
+              <div id="datepicker"></div>
+            </div>
+            <div class="col text-center mb-3">
+              <h5 class="mb-3">
+                <button type="button" class="btn btn-sm btn-light rounded-circle" data-bs-target="#timeCarousel" data-bs-slide="prev">
+                  <span class="icon-icon-126492"></span>
+                </button>
+                Reservation Time
+                <button type="button" class="btn btn-sm btn-light rounded-circle" data-bs-target="#timeCarousel" data-bs-slide="next">
+                  <span class="icon-icon-126490"></span>
+                </button>
+              </h5>
+              <div class="card-body text-center" *ngIf="bookArray?.length <= 0">
+                <ng-container *ngIf="!form.value.reservation_date; else noTimeFoundWrap;">
+                  <p class="text-muted">Please select reservation date first<br><small>for get your <b>"Reservation Time"</b></small></p>
+                </ng-container>
+                <ng-template #noTimeFoundWrap>
+                  <p class="text-muted">
+                    {{bookingSetting?.short_message ? bookingSetting?.short_message : 'Sorry, We are fully booked today.'}}
+                  </p>
+                </ng-template>
+              </div>
+              <div id="timeCarousel" class="carousel slide pb-4" data-bs-ride="false">
+                <div class="carousel-indicators">
+                  <ng-container *ngFor="let array of bookArray; index as i;">
+                    <button type="button" data-bs-target="#timeCarousel" [attr.data-bs-slide-to]="i" [ngClass]="{'active': i==0}"></button>
+                  </ng-container>
+                </div>
+                <div class="carousel-inner">
+                  <ng-container *ngFor="let array of bookArray; index as i;">
+                    <div class="carousel-item" [ngClass]="{'active': i==0}">
+                      <div class="btn-group time-btn-grp py-2" role="group">
+                        <ng-container *ngFor="let time of array">
+                          <button type="button" class="btn btn-outline-primary" [ngClass]="{'active': form.value.reservation_time === time.time}" 
+                          (click)="selectTime(time)">{{time.time}}</button>
+                        </ng-container>
+                      </div>
+                    </div>
+                  </ng-container>
+                </div>
+              </div>
+            </div>  
+            <div class="col text-center mb-3">
+              <h5 class="mb-3">Number of Guest</h5>
+              <div class="counter-btn">
+                <button type="button" class="btn btn-outline-dark rounded-circle" (click)="decreaseGuest()">
+                  <span class="icon-minus"></span>
+                </button>
+                <span color="dark" fill="clear" class="text">{{form.value.no_of_guest}}</span>
+                <button type="button" class="btn btn-outline-dark rounded-circle" (click)="increaseGuest()">
+                  <span class="icon-plus"></span>
+                </button>
+              </div>
+            </div>
+            <div class="col" [ngClass]="phase >= 2 ? 'd-block' : 'd-none'">
+              <hr class="my-4">
+              <h5 class="mb-3 text-center">Reserve with</h5>
+              <ng-container *ngIf="form.get('user'); else loginOptWrap;">
+                <ng-container formGroupName="user">
+                  <div class="row">
+                    <div class="form-group col mb-3">
+                      <input type="text" name="first_name" formControlName="first_name" class="form-control form-control-lg" placeholder="Fast Name"
+                      [ngClass]="{'is-invalid': form.get('user')?.get('first_name')?.touched && form.get('user')?.get('first_name')?.invalid}">
+                    </div>
+                    <div class="form-group col mb-3">
+                      <input type="text" name="last_name" formControlName="last_name" class="form-control form-control-lg" placeholder="Last Name"
+                      [ngClass]="{'is-invalid': form.get('user')?.get('last_name')?.touched && form.get('user')?.get('last_name')?.invalid}">
+                    </div>
+                  </div>
+                  <div class="form-group col mb-3">
+                    <input type="email" formControlName="email" class="form-control form-control-lg" placeholder="Email Address"
+                    [ngClass]="{'is-invalid': form.get('user')?.get('email')?.touched && form.get('user')?.get('email')?.invalid}">
+                  </div>
+                  <div class="input-group input-group-lg col mb-3 mobile" formGroupName="mobile">
+                    <select class="form-select w-100" formControlName="region">
+                      <ng-container *ngFor="let item of preferredCountryList">
+                        <option [value]="item.region">{{item.region}} +{{item.code}}</option>
+                      </ng-container>
+                      <option disabled></option>
+                      <ng-container *ngFor="let item of countryList">
+                        <option [value]="item.region">{{item.region}} +{{item.code}}</option>
+                      </ng-container>
+                    </select>
+                    <input type="tel" formControlName="number" class="form-control form-control-lg w-100" placeholder="Mobile No"
+                    [ngClass]="{'is-invalid': form.get('user')?.get('mobile')?.touched && form.get('user')?.get('mobile')?.invalid}">
+                  </div>
+                </ng-container>
+              </ng-container>
+              <ng-template #loginOptWrap>
+                <button type="button" class="btn btn-lg btn-primary w-100" (click)="loginOptions('devoret')">Sign in with Devoret</button>
+                <button type="button" class="btn btn-lg btn-primary w-100" (click)="loginOptions('facebook')">Sign in with Facebook</button>
+                <button type="button" class="btn btn-lg btn-primary w-100" (click)="loginOptions('google')">Sign in with Google</button>
+                <button type="button" class="btn btn-lg btn-primary w-100" (click)="loginOptions('guest')">Book as a guest</button>
+              </ng-template>
+            </div> 
+            <div class="col" [ngClass]="phase >= 3 ? 'd-block' : 'd-none'">
+              <h5 class="mb-3 text-center">Optional</h5>
+              <div class="form-group mb-3">
+                <textarea type="text" formControlName="special_request" class="form-control form-control-lg" placeholder="Special Request?"
+                [ngClass]="{'is-invalid': form.get('special_request')?.touched && form.get('special_request')?.invalid}"></textarea>
+                <small class="form-text text-muted">E.g. dietary requirements, disabilities, etc.</small>
+              </div>
+              <h5 class="mb-3 text-center">Coupon</h5>           
+              <ng-container *ngIf="(bookingdata$ | async)?.coupon; else couponWrap;">
+                <div class="row mb-3">
+                  <div class="col">
+                    <p class="card-text text-muted mb-1">Your Code: <strong>{{(bookingdata$ | async)?.coupon?.code}}</strong></p>
+                    <h5>{{(bookingdata$ | async)?.coupon?.title}}</h5>
+                  </div>
+                  <div class="col-auto">
+                    <button class="btn btn-sm btn-outline-danger" (click)="removeCoupon()">
+                      <span class="me-2"><i class="icon-unchecked"></i></span>
+                      <span class="info">Remove</span>
+                    </button>
+                  </div>
+                </div>
+              </ng-container>
+              <ng-template #couponWrap>
+                <div class="input-group input-group-lg mb-3">
+                  <input type="text" class="form-control" placeholder="enter your code" [(ngModel)]="couponCode" [ngModelOptions]="{standalone: true}">
+                  <span class="input-group-text bg-dark text-light pointer" (click)="validateCoupon()">Add</span>
+                </div>
+              </ng-template>
+              <div class="form-check mb-3" *ngIf="form.get('terms_and_condition')">
+                <input class="form-check-input" type="checkbox" id="tnc" formControlName="terms_and_condition"
+                [ngClass]="{'is-invalid': form.get('terms_and_condition')?.touched && form.get('terms_and_condition')?.invalid}">
+                <label class="form-check-label" for="tnc">
+                  I agree to Devoret's
+                  <a href="javascript:void(0)" routerLink="/terms-conditions" routerLinkActive="active" >terms & conditions</a>
+                  and
+                  <a href="javascript:void(0)" routerLink="/privacy-policy" routerLinkActive="active" >privacy policy</a>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer bg-transparent">
+            <button type="submit" class="btn btn-lg btn-primary w-100">
+              <ng-container *ngIf="phase <= 1">
+                Proceed
+              </ng-container>
+              <ng-container *ngIf="phase >= 2">
+                Reserve for {{form.value.reservation_date | date:'mediumDate'}} at {{form.value.reservation_time}}
+              </ng-container>
+            </button>
+          </div>
+        </div>
+      </form>
+      <ng-container *ngIf="bookingSetting?.is_booking_deposit">
+        <span class="badge text-bg-light text-danger text-wrap my-2">
+          <ng-container *ngIf="bookingSetting?.deposit_type == 'per_booking'">
+            Please note, a deposit of {{bookingSetting.deposit_amount | myCurrency}} is required for per booking
+          </ng-container>
+          <ng-container *ngIf="bookingSetting?.deposit_type == 'per_guest' && (form.value.no_of_guest >= bookingSetting.deposit_minimum_guest)">
+            Please note, a deposit of {{bookingSetting.deposit_amount | myCurrency}} pp is required for booking over {{bookingSetting.deposit_minimum_guest}} and above guests.
+          </ng-container>
+        </span>
+      </ng-container>
+    </div>
+  </div>
+</div>
